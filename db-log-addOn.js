@@ -281,4 +281,3 @@ export default class DBLogPlayerTime extends DBLog {
         console.log('player disconnect rows update: %i', rowAffect[0]);
     }
 }
-Koobs
