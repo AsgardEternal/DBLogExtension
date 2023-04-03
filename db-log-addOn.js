@@ -37,7 +37,7 @@ export default class DBLogPlayerTime extends DBLog {
         this.seeding = ServerState.init;
 
         this.createModel(
-            'PlayerTimeNew',
+            'PlayerTime',
             {
                 id: {
                     type: DataTypes.INTEGER,
@@ -63,12 +63,12 @@ export default class DBLogPlayerTime extends DBLog {
             }
         );
 
-        this.models.Server.hasMany(this.models.PlayerTimeNew, {
+        this.models.Server.hasMany(this.models.PlayerTime, {
             foreignKey: {name: 'server', allowNull: false},
             onDelete: 'CASCADE'
         });
 
-        this.models.SteamUser.hasMany(this.models.PlayerTimeNew, {
+        this.models.SteamUser.hasMany(this.models.PlayerTime, {
             foreignKey: {name: 'player'},
             onDelete: 'CASCADE'
         });
@@ -79,7 +79,7 @@ export default class DBLogPlayerTime extends DBLog {
 
     async prepareToMount() {
         await super.prepareToMount();
-        await this.models.PlayerTimeNew.sync();
+        await this.models.PlayerTime.sync();
 
     }
 
@@ -144,7 +144,7 @@ export default class DBLogPlayerTime extends DBLog {
         console.log(updateVals);
         console.log(whereStuff);
 
-        const rowUpdate = await this.models.PlayerTimeNew.update(
+        const rowUpdate = await this.models.PlayerTime.update(
             updateVals, {
                 where: whereStuff,
                 logging: console.log
@@ -156,7 +156,7 @@ export default class DBLogPlayerTime extends DBLog {
     }
 
     async unmount() {
-        this.models.PlayerTimeNew.update(
+        this.models.PlayerTime.update(
             {leaveTime: 0},
             {where: {leaveTime: null, server: this.options.overrideServerID || this.server.id}}
         );
@@ -169,7 +169,7 @@ export default class DBLogPlayerTime extends DBLog {
         if(oldState === newState) return;
         const timeNow = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
         console.log(timeNow);
-        const curPlayer = await this.models.PlayerTimeNew.findAll({
+        const curPlayer = await this.models.PlayerTime.findAll({
             where: {
                 endTime: null,
                 serverState: oldState,
@@ -190,7 +190,7 @@ export default class DBLogPlayerTime extends DBLog {
             });
         }
         console.log(curplayerarr);
-        await this.models.PlayerTimeNew.update(
+        await this.models.PlayerTime.update(
             { endTime: timeNow },
             {
                 where: {
@@ -200,7 +200,7 @@ export default class DBLogPlayerTime extends DBLog {
                 }
             }
         );
-        await this.models.PlayerTimeNew.bulkCreate(curplayerarr,{
+        await this.models.PlayerTime.bulkCreate(curplayerarr,{
             fields: ['startTime', 'endTime','serverState','session','server','player']
         });
         this.seeding = newState;
@@ -250,7 +250,7 @@ export default class DBLogPlayerTime extends DBLog {
                 steamID: info.player.steamID,
                 lastName: info.player.name
             });
-            await this.models.PlayerTimeNew.create({
+            await this.models.PlayerTime.create({
                 server: this.options.overrideServerID || this.server.id,
                 player: info.steamID,
                 startTime: info.time,
@@ -269,7 +269,7 @@ export default class DBLogPlayerTime extends DBLog {
                 lastName: info.player.name
             });
         }
-        const rowAffect = await this.models.PlayerTimeNew.update(
+        const rowAffect = await this.models.PlayerTime.update(
             {endTime: info.time},
             {where:
                 {
@@ -281,3 +281,4 @@ export default class DBLogPlayerTime extends DBLog {
         console.log('player disconnect rows update: %i', rowAffect[0]);
     }
 }
+Koobs
