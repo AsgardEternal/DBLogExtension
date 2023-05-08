@@ -263,7 +263,7 @@ export default class DBLogPlayerTime extends DBLog {
       'select lastName as playername, discordID, steamID, ' +
         'sum(time_to_sec(timediff(ifnull(endTime,now()), startTime))/3600) as seedTime ' +
         'from DBLog_PlayerTimes join DBLog_SteamUsers DLSU on DBLog_PlayerTimes.player = DLSU.steamID ' +
-        'where startTime between (now() - INTERVAL 1 MONTH) and now() and server != 3 and serverState=1 ' +
+        'where startTime between (now() - INTERVAL 1 WEEK) and now() and server != 3 and serverState=1 ' +
         'group by player ' +
         'order by seedTime desc',
       { type: QueryTypes.SELECT }
