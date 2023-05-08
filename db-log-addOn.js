@@ -278,7 +278,7 @@ export default class DBLogPlayerTime extends DBLog {
       if(((this.options.incseed*seeder.seedTime) - (this.options.decseed*(topTime-seeder.seedTime))) > 100) seedid.push(seeder);
     }
 
-    const lcladminpath = path.resolve(__dirname, "../../../", this.options.whitelistfilepath);
+    const lcladminpath = path.resolve(__dirname, "../../", this.options.whitelistfilepath);
     this.verbose(1, "trying to write to directory: ", lcladminpath);
     if(!fs.existsSync(lcladminpath)) {
       this.verbose(1, "WARNING: auto whitelist admins file not found");
