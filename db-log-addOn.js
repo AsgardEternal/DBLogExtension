@@ -123,6 +123,7 @@ export default class DBLogPlayerTime extends DBLog {
         );
         console.log('last tick found:', lastTickTime);
 
+        if(!lastTickTime) return;
         const lastServerDate = lastTickTime.time;
         const lastServerTime = lastServerDate.getFullYear() + '-' + (lastServerDate.getMonth() + 1) + '-' + lastServerDate.getDate() + ' ' + lastServerDate.getHours() + ':' + lastServerDate.getMinutes() + ':' + lastServerDate.getSeconds();
         console.log('last time found:', lastServerTime);
