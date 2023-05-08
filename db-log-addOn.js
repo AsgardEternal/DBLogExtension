@@ -259,7 +259,7 @@ export default class DBLogPlayerTime extends DBLog {
   async updateAutoWL() {
     if(!this.options.whitelistfilepath) return;
     // eslint-disable-next-line no-unused-vars
-    const seedTimes = await this.models.query(
+    const seedTimes = await this.options.database.query(
       'select lastName as playername, discordID, steamID, ' +
         'sum(time_to_sec(timediff(ifnull(endTime,now()), startTime))/3600) as seedTime ' +
         'from DBLog_PlayerTimes join DBLog_SteamUsers DLSU on DBLog_PlayerTimes.player = DLSU.steamID ' +
