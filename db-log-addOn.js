@@ -6,6 +6,8 @@ import path from "path";
 import fs from "fs";
 import { open } from "node:fs/promises"
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 const { DataTypes } = Sequelize;
 const ServerState = {
   init: 0,
@@ -275,7 +277,7 @@ export default class DBLogPlayerTime extends DBLog {
       if(((this.options.incseed*seeder.seedTime) - (this.options.decseed*(topTime-seeder.seedTime))) > 100) seedid.push(seeder);
     }
 
-    const lcladminpath = path.resolve("../../../", this.options.whitelistfilepath);
+    const lcladminpath = path.resolve(__dirname, "../../../", this.options.whitelistfilepath);
     this.verbose(1, "trying to write to directory: ", lcladminpath);
     if(!fs.existsSync(lcladminpath)) {
       this.verbose(1, "WARNING: auto whitelist admins file not found");
