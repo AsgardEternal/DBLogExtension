@@ -285,11 +285,12 @@ export default class DBLogPlayerTime extends DBLog {
       return;
     }
 
-    const adminfile = await open(lcladminpath, 'rw');
+    const adminfile = await open(lcladminpath, 'r+');
     await adminfile.write(`Group=server-${this.server.options.id}-autowl:reserve\n`);
     for(const seeding of seedid){
       await adminfile.write(`Admin=${seeding.steamID}:server-${this.server.options.id}-autowl //name:${seeding.playername}, discord ID: ${seeding.discordID}\n`);
     }
+    await adminfile.close();
   }
 
   async onNewGame(info) {
