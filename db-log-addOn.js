@@ -103,43 +103,43 @@ export default class DBLogPlayerTime extends DBLog {
   }
 
   async mount() {
-    console.log('Mounting db-log');
+    this.verbose(1,'Mounting db-log');
     if (this.server.currentLayer) {
       if (this.server.currentLayer.gamemode === 'Seed') {
-        console.log('starting to seeding');
+        this.verbose(1,'starting to seeding');
         this.seeding = ServerState.seeding;
       } else {
-        console.log('starting to Live');
+        this.verbose(1,'starting to Live');
         this.seeding = ServerState.live;
       }
     } else {
       if (this.server.currentLayerRcon.layer.includes('Seed')) {
-        console.log('starting to seeding');
+        this.verbose(1,'starting to seeding');
         this.seeding = ServerState.seeding;
       } else {
-        console.log('starting to Live');
+        this.verbose(1,'starting to Live');
         this.seeding = ServerState.live;
       }
     }
     await super.mount();
-    console.log('finished mounting db-log');
+    this.verbose(1,'finished mounting db-log');
     this.server.on('PLAYER_CONNECTED', this.onPlayerConnected);
     this.server.on('PLAYER_DISCONNECTED', this.onPlayerDisconnected);
-    console.log('finished mounting db-log-addOn');
+    this.verbose(1,'finished mounting add-on');
   }
 
   async repairDB() {
-    console.log('starting DB repair');
+    this.verbose(1,'starting DB repair');
     await super.repairDB();
 
-    console.log('starting DB repair for addOn');
+    this.verbose(1,'starting DB repair for addOn');
 
     const lastTickTime = await this.models.TickRate.findOne({
       where: { server: this.options.overrideServerID || this.server.id },
-      order: [['id', 'DESC']],
-      logging: console.log
+      order: [['id', 'DESC']]
+      //logging: console.log
     });
-    console.log('last tick found:', lastTickTime);
+    //console.log('last tick found:', lastTickTime);
 
     if(!lastTickTime) return;
     const lastServerDate = lastTickTime.time;
@@ -155,14 +155,14 @@ export default class DBLogPlayerTime extends DBLog {
       lastServerDate.getMinutes() +
       ':' +
       lastServerDate.getSeconds();
-    console.log('last time found:', lastServerTime);
+    this.verbose(1,'last time found:' + lastServerTime);
 
     const playerOnlineID = [];
     playerOnlineID.push(0);
     for (const player of this.server.players) {
       playerOnlineID.push(player.steamID);
     }
-    console.log('players online:', playerOnlineID);
+    //console.log('players online:', playerOnlineID);
 
     const { notIn, is } = Sequelize.Op;
     const updateVals = { endTime: lastServerTime };
@@ -171,16 +171,16 @@ export default class DBLogPlayerTime extends DBLog {
       server: this.options.overrideServerID || this.server.id,
       player: { [notIn]: playerOnlineID }
     };
-    console.log(updateVals);
-    console.log(whereStuff);
+    //console.log(updateVals);
+    //console.log(whereStuff);
 
     const rowUpdate = await this.models.PlayerTime.update(updateVals, {
-      where: whereStuff,
-      logging: console.log
+      where: whereStuff
+      //logging: console.log
     });
 
-    console.log('updated playerTimes row count: %i', rowUpdate[0]);
-    console.log('finish DB repair');
+    this.verbose(1,'updated playerTimes row count: %i', rowUpdate[0]);
+    this.verbose(1,'finish DB repair');
   }
 
   async unmount() {
@@ -208,7 +208,7 @@ export default class DBLogPlayerTime extends DBLog {
       date.getMinutes() +
       ':' +
       date.getSeconds();
-    console.log(timeNow);
+    this.verbose(1,"Current time for switch: " + timeNow);
     const curPlayer = await this.models.PlayerTime.findAll({
       where: {
         endTime: null,
@@ -216,10 +216,10 @@ export default class DBLogPlayerTime extends DBLog {
         server: this.options.overrideServerID || this.server.id
       }
     });
-    console.log(curPlayer);
+    //console.log(curPlayer);
     const curplayerarr = [];
     for (const oneplayer of curPlayer) {
-      console.log(oneplayer);
+      //console.log(oneplayer);
       curplayerarr.push({
         startTime: timeNow,
         endTime: null,
@@ -229,7 +229,7 @@ export default class DBLogPlayerTime extends DBLog {
         player: oneplayer.player
       });
     }
-    console.log(curplayerarr);
+    //console.log(curplayerarr);
     await this.models.PlayerTime.update(
       { endTime: timeNow },
       {
@@ -296,22 +296,22 @@ export default class DBLogPlayerTime extends DBLog {
   async onNewGame(info) {
     await super.onNewGame(info);
 
-    console.log(info);
+    //console.log(info);
     const curDateTime = info.time;
     if (info.layer) {
       if (info.layer.gamemode === 'Seed') {
-        console.log('switching to seeding');
+        this.verbose(1,'switching to seeding');
         await this.updateCurrentTimeState(curDateTime, this.seeding, ServerState.seeding);
       } else {
-        console.log('switching to Live');
+        this.verbose(1,'switching to Live');
         await this.updateCurrentTimeState(curDateTime, this.seeding, ServerState.live);
       }
     } else {
       if (info.layerClassname.includes('Seed')) {
-        console.log('switching to seeding');
+        this.verbose(1,'switching to seeding');
         await this.updateCurrentTimeState(curDateTime, this.seeding, ServerState.seeding);
       } else {
-        console.log('switching to Live');
+        this.verbose(1,'switching to Live');
         await this.updateCurrentTimeState(curDateTime, this.seeding, ServerState.live);
       }
     }
@@ -322,7 +322,7 @@ export default class DBLogPlayerTime extends DBLog {
   }
 
   async onPlayerConnected(info) {
-    console.log(info);
+    //console.log(info);
     if (info.player) {
       await this.models.SteamUser.upsert({
         steamID: info.player.steamID,
@@ -334,14 +334,14 @@ export default class DBLogPlayerTime extends DBLog {
         startTime: info.time,
         serverState: this.seeding
       });
-      console.log('player connect complete');
-    } else console.log('player is null');
+      this.verbose(1, 'player connect complete');
+    } else this.verbose(1, 'player is null');
   }
 
   async onPlayerDisconnected(info) {
     // eslint-disable-next-line promise/param-names
     await new Promise((r) => setTimeout(r, 500));
-    console.log(info);
+    //console.log(info);
     if (info.player) {
       await this.models.SteamUser.upsert({
         steamID: info.player.steamID,
@@ -358,6 +358,6 @@ export default class DBLogPlayerTime extends DBLog {
         }
       }
     );
-    console.log('player disconnect rows update: %i', rowAffect[0]);
+    //console.log('player disconnect rows update: %i', rowAffect[0]);
   }
 }
