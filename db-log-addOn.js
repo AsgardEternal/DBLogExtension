@@ -352,7 +352,7 @@ export default class DBLogPlayerTime extends DBLog {
       { endTime: info.time },
       {
         where: {
-          player: info.steamID,
+          player: info.player.steamID,
           endTime: null,
           server: this.options.overrideServerID || this.server.id
         }
