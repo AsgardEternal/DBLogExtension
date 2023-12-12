@@ -330,7 +330,7 @@ export default class DBLogPlayerTime extends DBLog {
       });
       await this.models.PlayerTime.create({
         server: this.options.overrideServerID || this.server.id,
-        player: info.steamID,
+        player: info.player.steamID,
         startTime: info.time,
         serverState: this.seeding
       });
